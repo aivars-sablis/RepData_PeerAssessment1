@@ -39,22 +39,26 @@ daily_total <- activityDt %>%
 
 
 ```r
-ggplot(data=daily_total, aes(daily_total$count)) + 
+mean <- mean(daily_total$count)
+median <- median(daily_total$count)
+
+ggplot(data = daily_total, aes(daily_total$count)) + 
     geom_histogram(bins = 20) +
-    geom_vline(xintercept = mean(daily_total$count), color = "blue") + 
-    geom_vline(xintercept = median(daily_total$count)) + 
+    geom_vline(aes(xintercept = mean(daily_total$count), colour = "myline1"), color = "blue", show.legend = TRUE) + 
+    geom_vline(xintercept = median(daily_total$count), aes(colour = "myline2"), color = "lightblue") + 
     scale_y_continuous(breaks = seq(0, 10, by = 2)) + 
     xlab("Number of steps taken per day") +
     ylab("Frequency") + 
-    theme_minimal(base_family = "Times")
+    geom_text(aes(x=mean(daily_total$count)-1100, 
+                  label=paste("mean: ", round(mean(daily_total$count), digits = 1), sep = ""), 
+                  y = 11), size = 3) +
+    geom_text(aes(x=median(daily_total$count)+1000, 
+                  label=paste("median: ", round(median(daily_total$count), digits = 1), sep = ""), 
+                  y = 10.5), size = 3) +
+    theme_minimal(base_family = "Times") 
 ```
 
 ![](PA1_template_files/figure-html/dailysteps-1.png)<!-- -->
-
-```r
-mean <- mean(daily_total$count)
-median <- median(daily_total$count)
-```
 
 
 ## What is the average daily activity pattern?
@@ -148,10 +152,13 @@ activityDf2 <- activityDf2[with(activityDf2, order(date, interval)), ]
 
 
 ```r
-daily_total_nm <- activityDt %>% 
+daily_total_nm <- activityDf2 %>% 
     group_by(date) %>% 
     summarise(count = sum(steps, na.rm = T))
+```
 
+
+```r
 ggplot(data=daily_total_nm, aes(daily_total_nm$count)) + 
     geom_histogram(bins = 20) +
     geom_vline(xintercept = mean(daily_total_nm$count), color = "blue") + 
@@ -163,6 +170,9 @@ ggplot(data=daily_total_nm, aes(daily_total_nm$count)) +
 ```
 
 ![](PA1_template_files/figure-html/daily-steps-no-missing-values-1.png)<!-- -->
+
+**Answer To Question:**
+There is not much difference, because methoed used to replace missing values was using mean anyways. Median value is closer to the mean.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -188,8 +198,10 @@ activityDf2$daytype <- as.factor(mapply(is.weekend, activityDf2$date))
 interval_total <- activityDf2 %>% 
     group_by(daytype, interval) %>% 
     summarise(avg_steps = mean(steps, na.rm = T))
+```
 
 
+```r
 ggplot(data = interval_total, aes(x = interval_total$interval, y = interval_total$avg_steps)) + 
     geom_line() + 
     facet_grid(daytype ~ .) +

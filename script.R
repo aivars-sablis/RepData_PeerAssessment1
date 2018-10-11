@@ -8,17 +8,24 @@ activityDt <- transform(activityDt , date=as.Date(date, format = "%Y-%m-%d"))
 
 daily_total <- activityDt %>% 
     group_by(date) %>% 
-    summarise(count = sum(steps, na.rm = T))
+    summarise(count = sum(steps, na.rm = F))
 
 
 ggplot(data = daily_total, aes(daily_total$count)) + 
     geom_histogram(bins = 20) +
-    geom_vline(xintercept = mean(daily_total$count), color = "blue") + 
-    geom_vline(xintercept = median(daily_total$count)) + 
+    geom_vline(aes(xintercept = mean(daily_total$count), colour = "myline1"), color = "blue", show.legend = TRUE) + 
+    geom_vline(xintercept = median(daily_total$count), aes(colour = "myline2"), color = "lightblue") + 
     scale_y_continuous(breaks = seq(0, 10, by = 2)) + 
     xlab("Number of steps taken per day") +
     ylab("Frequency") + 
-    theme_minimal(base_family = "Times")
+    geom_text(aes(x=mean(daily_total$count)-1100, 
+                  label=paste("mean: ", round(mean(daily_total$count), digits = 1), sep = ""), 
+                  y = 11), size = 3) +
+    geom_text(aes(x=median(daily_total$count)+1000, 
+                  label=paste("median: ", round(median(daily_total$count), digits = 1), sep = ""), 
+                  y = 10.5), size = 3) +
+    theme_minimal(base_family = "Times") 
+
 
 
 
